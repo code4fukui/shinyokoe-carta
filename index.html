@@ -6,7 +6,6 @@ import { FlipDIV } from "https://code4fukui.github.io/flip-div/flip-div.js";
 
 onload = async () => {
   const n = document.body.clientWidth > 800 ? 11 : 5; // Math.floor(document.body.clientWidth / 100);
-  console.log(n);
 
   const data = CSV.toJSON(await CSV.fetch("./songs.csv"));
   h1("新横江ふるさとかるた");
