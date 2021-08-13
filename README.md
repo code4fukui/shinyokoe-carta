@@ -8,4 +8,7 @@ https://code4fukui.github.io/shinyokoe-carta/
 
 https://code4fukui.github.io/shinyokoe-carta/songs.csv
 
- 
+## ブログ
+
+https://fukuno.jig.jp/3305
+
