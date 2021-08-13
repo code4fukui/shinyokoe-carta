@@ -1,0 +1,31 @@
+<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
+<script type="module">
+import { h1, create, style, link } from "https://js.sabae.cc/stdom.js";
+import { CSV } from "https://js.sabae.cc/CSV.js";
+import { FlipDIV } from "https://code4fukui.github.io/flip-div/flip-div.js";
+
+onload = async () => {
+  const n = document.body.clientWidth > 800 ? 11 : 5; // Math.floor(document.body.clientWidth / 100);
+  console.log(n);
+
+  const data = CSV.toJSON(await CSV.fetch("./songs.csv"));
+  h1("新横江ふるさとかるた");
+  const div = create("div", document.body);
+  div.style.gridTemplateColumns = "1fr ".repeat(n);
+  div.style.display = "inline-grid";
+  for (const d of data) {
+    const card = new FlipDIV(); //create("div", div);
+    div.appendChild(card);
+    const img = new Image();
+    img.style.width = "90%";
+    img.src = d.image;
+    card.appendChild(img);
+    const img2 = new Image();
+    img2.style.width = "90%";
+    img2.src = d.song_image;
+    card.appendChild(img2);
+  }
+
+  link("DATA: 新横江ふるさとカルタオープンデータ by 新横江地区", "https://github.com/code4fukui/shinyokoe-carta/");
+};
+</script>
