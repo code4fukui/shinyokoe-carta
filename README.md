@@ -3,7 +3,7 @@
 ## サンプルアプリ
 
 - https://code4fukui.github.io/shinyokoe-carta/
-- https://github.com/code4fukui/shinyokoe-carta/map.html
+- https://code4fukui.github.io/shinyokoe-carta/map.html
 
 ## CSVオープンデータ
 
