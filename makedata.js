@@ -23,4 +23,4 @@ for (let i = 1; i < songs.length; i++) {
   s.push(baseurl + fn.substring(0, 4) + "1.jpg");
   s.push(baseurl + fn.substring(0, 4) + "2.jpg");
 }
-await Deno.writeTextFile("songs.csv", CSV.encode(songs));
+await Deno.writeTextFile("songs_nopos.csv", CSV.encode(songs));

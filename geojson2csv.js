@@ -19,11 +19,19 @@ const json = JSON.parse(await Deno.readTextFile("./poi.geojson"));
 const data = geojson2poi(json);
 data.sort((a, b) => a.name.charCodeAt(0) - b.name.charCodeAt(0));
 
-const songs = CSV.toJSON(await CSV.fetch("./songs.csv"));
+const songs = CSV.toJSON(await CSV.fetch("./songs_nopos.csv"));
 data.forEach(d => {
   const song = songs.find(s => s.id == d.name);
   d.image = song.image;
   d.song = song.song;
 });
 
-await Deno.writeTextFile("./poi.csv", CSV.encode(CSV.fromJSON(data)));
+songs.forEach(s => {
+  const d = data.find(d => d.name == s.id);
+  if (!d) {
+    throw new Error("can't find: " + d.id);
+  }
+  s.geo3x3 = d.geo3x3;
+});
+console.log(songs);
+await Deno.writeTextFile("./songs.csv", CSV.encode(CSV.fromJSON(songs)));
