@@ -1,0 +1,125 @@
+<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
+</head><body>
+<h1>歩いてGET!、鯖江市新横江ふるさとかるた</h1>
+<div id="divmap"></div>
+
+<style>
+body {
+  margin: 0;
+  text-align: center;
+}
+#divmap {
+  width: 100vw;
+  height: 70vh;
+}
+a {
+  color: gray !important;
+}
+</style>
+
+<script type="module">
+import L from "https://code4sabae.github.io/leaflet-mjs/leaflet.mjs";
+import { Geo3x3 } from "https://taisukef.github.io/Geo3x3/Geo3x3.mjs";
+import { CSV } from "https://js.sabae.cc/CSV.js";
+
+const waitOnload = async (comp) => {
+  return new Promise(resolve => {
+    comp.onload = resolve;
+  });
+};
+
+const showMap = async (mapdiv, grayscale) => {
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = "https://code4sabae.github.io/leaflet-mjs/" + (grayscale ? "leaflet-grayscale.css" : "leaflet.css");
+  document.body.appendChild(link);
+  await waitOnload(link);
+  
+  const map = L.map(mapdiv);
+  // set 国土地理院地図 https://maps.gsi.go.jp/development/ichiran.html
+  L.tileLayer("https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", {
+    attribution: '<a href="https://maps.gsi.go.jp/development/ichiran.html">国土地理院</a>"',
+    maxZoom: 18,
+  }).addTo(map);
+  map.set
+  return map;
+};
+
+const calcDistance = (lat1, lng1, lat2, lng2) => {
+  const R = Math.PI / 180;
+  lat1 *= R;
+  lng1 *= R;
+  lat2 *= R;
+  lng2 *= R;
+  return 6371000 * Math.acos(Math.cos(lat1) * Math.cos(lat2) * Math.cos(lng2 - lng1) + Math.sin(lat1) * Math.sin(lat2));
+};
+
+const getCurrentPosition = () => {
+  return new Promise((resolve, reject) => {
+    navigator.geolocation.getCurrentPosition(resolve, reject);
+  });
+};
+
+const getContent = (d) => {
+  const url = `https://code4fukui.github.io/shinyokoe-carta/${d.image}`;
+  return `<div style="text-align:center">${d.song}<br><a href=${url} target=_blank><img src=${url} style="width:150px"></a></div>`;
+};
+
+window.btn = async (id) => {
+  try {
+    const pos = await getCurrentPosition();
+    console.log(pos.coords);
+    const lat = pos.coords.latitude;
+    const lng = pos.coords.longitude;
+    const acc = pos.coords.accuracy;
+    const d = data.find(d => d.id == id);
+    const pos2 = Geo3x3.decode(d.geo3x3);
+    const dis = calcDistance(lat, lng, pos2.lat, pos2.lng);
+    const hitdis = 10;
+    //const hitdis = 10 * 1000;
+    if (dis < hitdis) {
+      alert("GET!");
+      d.marker.bindPopup(getContent(d));
+      localStorage.setItem("carta" + d.id, true);
+    } else {
+      alert(hitdis + "m以内に近づくとGETできるよ");
+    }
+  } catch (e) {
+    console.log(e)
+    alert("GPS情報が取得できませんでした");
+  }
+};
+
+const addMarkers = (map, data) => {
+  const lls = [];
+  const iconlayer =  L.layerGroup();
+  map.addLayer(iconlayer);
+  for (const d of data) {
+    const pos = Geo3x3.decode(d.geo3x3);
+    const ll = [pos.lat, pos.lng];
+    const marker = L.marker(ll);
+    d.marker = marker;
+    if (localStorage.getItem("carta" + d.id) == "true") {
+      marker.bindPopup(getContent(d));
+    } else {
+      marker.bindPopup(`<div style="text-align:center">${d.song}<br><br><button onclick='btn("${d.id}")'>GETする!</button></div>`)
+    }
+    iconlayer.addLayer(marker);
+    lls.push(ll);
+  }
+  map.fitBounds(lls);
+};
+
+
+const map = await showMap(divmap);
+
+const url = "https://code4fukui.github.io/shinyokoe-carta/songs.csv";
+const data = CSV.toJSON(await CSV.fetch(url));
+console.log(data)
+addMarkers(map, data);
+
+</script>
+
+DATA/APP: <a href=https://github.com/code4fukui/shinyokoe-carta/>新横江ふるさとかるたオープンデータ on GitHub</a><br>
+</body>
+</html>
